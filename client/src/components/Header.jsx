@@ -1,13 +1,13 @@
 import { useSelector, useDispatch } from 'react-redux'
-import { FiSun, FiMoon, FiSave, FiUser, FiLogOut, FiLogIn, FiMenu } from 'react-icons/fi'
+import { FiSun, FiMoon, FiSave, FiUser, FiLogOut, FiLogIn, FiMenu, FiPlusSquare, FiTrash } from 'react-icons/fi'
 import { toggleTheme } from '../store/slices/themeSlice'
-import { saveProject, toggleAutoSave } from '../store/slices/projectSlice'
+import { saveProject, toggleAutoSave, createNewProject, clearAllLocalProjects } from '../store/slices/projectSlice'
 import { logoutUser, showAuthModal } from '../store/slices/authSlice'
 
 const Header = ({ onToggleSidebar }) => {
   const dispatch = useDispatch()
   const { isDark } = useSelector(state => state.theme)
-  const { projectName, autoSave } = useSelector(state => state.project)
+  const { projectName, autoSave, projectId } = useSelector(state => state.project)
   const { isAuthenticated, user } = useSelector(state => state.auth)
 
   return (
@@ -19,8 +19,9 @@ const Header = ({ onToggleSidebar }) => {
         >
           <FiMenu size={18} />
         </button>
-        <h1 className="text-lg md:text-xl font-bold text-gray-900 dark:text-white">CipherStudio</h1>
-        <span className="hidden sm:block text-sm text-gray-600 dark:text-gray-400">{projectName}</span>
+  <h1 className="text-lg md:text-xl font-bold text-gray-900 dark:text-white">CipherStudio</h1>
+  <span className="hidden sm:block text-sm text-gray-600 dark:text-gray-400">{projectName}</span>
+  <span className="hidden lg:block text-xs text-gray-500 dark:text-gray-500">ID: {projectId}</span>
       </div>
       
       <div className="flex items-center space-x-2">
@@ -41,6 +42,23 @@ const Header = ({ onToggleSidebar }) => {
           title="Save Project"
         >
           <FiSave size={18} />
+        </button>
+
+        <button
+          onClick={() => dispatch(createNewProject())}
+          className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+          title="New Project"
+        >
+          <FiPlusSquare size={18} />
+        </button>
+
+        {/* Dev helper: clear local storage */}
+        <button
+          onClick={() => { dispatch(clearAllLocalProjects()); window.location.reload() }}
+          className="p-2 text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400"
+          title="Clear Storage (dev)"
+        >
+          <FiTrash size={18} />
         </button>
         
         <button

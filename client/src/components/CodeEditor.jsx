@@ -1,15 +1,25 @@
 import { useSelector, useDispatch } from 'react-redux'
 import { updateFileCode } from '../store/slices/projectSlice'
+import Editor from '@monaco-editor/react'
 
 const CodeEditor = () => {
   const dispatch = useDispatch()
   const { files, activeFile } = useSelector(state => state.project)
   const { isDark } = useSelector(state => state.theme)
 
-  const handleCodeChange = (e) => {
-    if (activeFile) {
-      dispatch(updateFileCode({ fileName: activeFile, code: e.target.value }))
+  const handleCodeChange = (value) => {
+    if (activeFile && value !== undefined) {
+      dispatch(updateFileCode({ fileName: activeFile, code: value }))
     }
+  }
+
+  const getLanguage = (fileName) => {
+    if (fileName.endsWith('.js') || fileName.endsWith('.jsx')) return 'javascript'
+    if (fileName.endsWith('.ts') || fileName.endsWith('.tsx')) return 'typescript'
+    if (fileName.endsWith('.css')) return 'css'
+    if (fileName.endsWith('.html')) return 'html'
+    if (fileName.endsWith('.json')) return 'json'
+    return 'javascript'
   }
 
   if (!activeFile || !files[activeFile]) {
@@ -29,17 +39,45 @@ const CodeEditor = () => {
       </div>
       
       <div className="flex-1 min-h-0">
-        <textarea
+        <Editor
+          height="100%"
+          language={getLanguage(activeFile)}
           value={files[activeFile].code}
           onChange={handleCodeChange}
-          className="w-full h-full p-4 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 font-mono text-sm resize-none border-none outline-none"
-          style={{
-            fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
-            lineHeight: '1.5',
-            tabSize: 2
+          theme={isDark ? 'vs-dark' : 'vs-light'}
+          options={{
+            minimap: { enabled: false },
+            fontSize: 14,
+            lineNumbers: 'on',
+            roundedSelection: false,
+            scrollBeyondLastLine: false,
+            automaticLayout: true,
+            tabSize: 2,
+            insertSpaces: true,
+            wordWrap: 'on',
+            contextmenu: true,
+            selectOnLineNumbers: true,
+            glyphMargin: false,
+            folding: true,
+            lineDecorationsWidth: 0,
+            lineNumbersMinChars: 3,
+            renderLineHighlight: 'line',
+            scrollbar: {
+              vertical: 'visible',
+              horizontal: 'visible',
+              useShadows: false,
+              verticalHasArrows: false,
+              horizontalHasArrows: false,
+            },
           }}
-          spellCheck={false}
-          placeholder="Start coding..."
+          loading={
+            <div className="flex items-center justify-center h-full">
+              <div className="text-center">
+                <div className="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Loading editor...</p>
+              </div>
+            </div>
+          }
         />
       </div>
     </div>

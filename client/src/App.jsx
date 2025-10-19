@@ -6,6 +6,7 @@ import Header from './components/Header'
 import LoginPage from './components/LoginPage'
 import SignupPage from './components/SignupPage'
 import DebugInfo from './components/DebugInfo'
+import ProjectDashboard from './components/ProjectDashboard'
 import { getCurrentUser } from './store/slices/authSlice'
 import { initializeProject } from './store/slices/projectSlice'
 import authService from './services/authService'
@@ -49,7 +50,9 @@ function App() {
   // Initialize project when user becomes authenticated
   useEffect(() => {
     if (isAuthenticated) {
-      dispatch(initializeProject())
+      // Only initialize if a current project exists, else show dashboard
+      const hasCurrent = !!localStorage.getItem('currentProjectId')
+      if (hasCurrent) dispatch(initializeProject())
     }
   }, [isAuthenticated, dispatch])
 
@@ -74,6 +77,15 @@ function App() {
         ) : (
           <SignupPage onSwitchToLogin={() => setAuthMode('login')} />
         )}
+      </div>
+    )
+  }
+
+  // No current project selected -> show dashboard
+  if (!localStorage.getItem('currentProjectId')) {
+    return (
+      <div className={isDark ? 'dark' : ''}>
+        <ProjectDashboard />
       </div>
     )
   }
