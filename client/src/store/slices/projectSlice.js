@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit'
+import projectService from '../../services/projectService'
 import { v4 as uuidv4 } from 'uuid'
 
 const defaultFiles = {
@@ -97,6 +98,7 @@ const getInitialState = () => {
     activeFile,
     projectName: 'My React Project',
     autoSave: true,
+    projectsVersion: 0,
   }
 }
 
@@ -211,6 +213,7 @@ export const projectSlice = createSlice({
       const meta = { id: state.projectId, name: state.projectName, updatedAt: Date.now() }
       if (idx >= 0) list[idx] = meta; else list.push(meta)
       setProjectList(list)
+      state.projectsVersion = (state.projectsVersion || 0) + 1
     },
     loadProject: (state, action) => {
       const { projectId } = action.payload
@@ -233,6 +236,7 @@ export const projectSlice = createSlice({
       const list = getProjectList()
       list.push({ id, name: state.projectName, updatedAt: Date.now() })
       setProjectList(list)
+      state.projectsVersion = (state.projectsVersion || 0) + 1
     },
     createNewProjectWithName: (state, action) => {
       const id = uuidv4()
@@ -246,6 +250,7 @@ export const projectSlice = createSlice({
       const list = getProjectList()
       list.push({ id, name: state.projectName, updatedAt: Date.now() })
       setProjectList(list)
+      state.projectsVersion = (state.projectsVersion || 0) + 1
     },
     selectProjectById: (state, action) => {
       const id = action.payload
@@ -262,6 +267,7 @@ export const projectSlice = createSlice({
       localStorage.removeItem(`project-${id}-files`)
       const list = getProjectList().filter(p => p.id !== id)
       setProjectList(list)
+  state.projectsVersion = (state.projectsVersion || 0) + 1
       if (state.projectId === id) {
         // Move to a fresh project
         const fallback = list[list.length - 1]
@@ -291,6 +297,7 @@ export const projectSlice = createSlice({
       state.projectName = 'My React Project'
       state.files = defaultFiles
       state.activeFile = Object.keys(state.files)[0]
+      state.projectsVersion = (state.projectsVersion || 0) + 1
     },
     toggleAutoSave: (state) => {
       state.autoSave = !state.autoSave
@@ -299,7 +306,22 @@ export const projectSlice = createSlice({
       state.projectName = action.payload
       const list = getProjectList()
       const idx = list.findIndex(p => p.id === state.projectId)
-      if (idx >= 0) { list[idx].name = state.projectName; list[idx].updatedAt = Date.now(); setProjectList(list) }
+      if (idx >= 0) { list[idx].name = state.projectName; list[idx].updatedAt = Date.now(); setProjectList(list); state.projectsVersion = (state.projectsVersion || 0) + 1 }
+    },
+    renameProjectById: (state, action) => {
+      const { id, name } = action.payload || {}
+      if (!id || !name) return
+      const list = getProjectList()
+      const idx = list.findIndex(p => p.id === id)
+      if (idx >= 0) {
+        list[idx].name = name
+        list[idx].updatedAt = Date.now()
+        setProjectList(list)
+      }
+      if (state.projectId === id) {
+        state.projectName = name
+      }
+      state.projectsVersion = (state.projectsVersion || 0) + 1
     },
     initializeProject: (state) => {
       // Ensure we have at least one file and it's active
@@ -344,7 +366,41 @@ export const {
   deleteProjectById,
   clearAllLocalProjects,
   deleteFolder,
-  renameFolder
+  renameFolder,
+  renameProjectById
 } = projectSlice.actions
 
 export default projectSlice.reducer
+
+// Thunks: server sync
+export const createProjectAndPersist = (payload) => async (dispatch, getState) => {
+  const name = typeof payload === 'string' ? payload : payload?.name
+  dispatch(projectSlice.actions.createNewProjectWithName({ name }))
+  const { projectId, projectName, files } = getState().project
+  const filesArray = Object.entries(files).map(([name, v]) => ({ name, content: v.code, type: 'file' }))
+  try {
+    await projectService.createProject({ projectId, name: projectName || name || 'Untitled Project', files: filesArray, template: 'react' })
+  } catch (e) {
+    console.error('Create project API failed:', e)
+  }
+}
+
+export const saveProjectToServer = () => async (dispatch, getState) => {
+  const { projectId, files } = getState().project
+  if (!projectId) return
+  try {
+    await projectService.saveProjectFiles(projectId, files)
+  } catch (e) {
+    console.error('Save project API failed:', e)
+  }
+}
+
+export const deleteProjectOnServerAndLocal = (id) => async (dispatch) => {
+  try {
+    if (id) await projectService.deleteProject(id)
+  } catch (e) {
+    console.error('Delete project API failed:', e)
+  } finally {
+    dispatch(projectSlice.actions.deleteProjectById(id))
+  }
+}

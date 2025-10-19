@@ -1,7 +1,7 @@
 import { useSelector, useDispatch } from 'react-redux'
-import { FiSun, FiMoon, FiSave, FiUser, FiLogOut, FiLogIn, FiMenu, FiPlusSquare, FiTrash } from 'react-icons/fi'
+import { FiSun, FiMoon, FiSave, FiUser, FiLogOut, FiLogIn, FiMenu, FiGrid, FiTrash } from 'react-icons/fi'
 import { toggleTheme } from '../store/slices/themeSlice'
-import { saveProject, toggleAutoSave, createNewProject, clearAllLocalProjects } from '../store/slices/projectSlice'
+import { saveProject, toggleAutoSave, clearAllLocalProjects, saveProjectToServer } from '../store/slices/projectSlice'
 import { logoutUser, showAuthModal } from '../store/slices/authSlice'
 
 const Header = ({ onToggleSidebar }) => {
@@ -32,12 +32,13 @@ const Header = ({ onToggleSidebar }) => {
               ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
               : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
           }`}
+          title="Auto-save continuously (ON) or only when you click Save (OFF)"
         >
           Auto-save: {autoSave ? 'ON' : 'OFF'}
         </button>
         
         <button
-          onClick={() => dispatch(saveProject())}
+          onClick={() => { dispatch(saveProject()); dispatch(saveProjectToServer()) }}
           className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
           title="Save Project"
         >
@@ -45,11 +46,11 @@ const Header = ({ onToggleSidebar }) => {
         </button>
 
         <button
-          onClick={() => dispatch(createNewProject())}
+          onClick={() => { localStorage.removeItem('currentProjectId'); window.location.reload() }}
           className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-          title="New Project"
+          title="Open Projects Dashboard"
         >
-          <FiPlusSquare size={18} />
+          <FiGrid size={18} />
         </button>
 
         {/* Dev helper: clear local storage */}
