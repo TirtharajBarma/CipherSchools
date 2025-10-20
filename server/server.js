@@ -2,6 +2,7 @@ import express from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
 import mongoose from 'mongoose'
+import connectDB from './config/db.js'
 import projectRoutes from './routes/projects.js'
 import userRoutes from './routes/users.js'
 import authRoutes from './routes/auth.js'
@@ -22,7 +23,9 @@ app.use('/api/projects', projectRoutes)
 app.use('/api/users', userRoutes)
 
 // Health + diagnostics
-app.get('/api/health', (req, res) => {
+app.get('/api/health', async (req, res) => {
+  // try to establish connection if not yet connected
+  try { await connectDB() } catch (_) {}
   res.json({
     ok: true,
     env: {
@@ -39,24 +42,7 @@ app.get('/', (req, res) => {
   res.json({ message: 'CipherStudio API Server' })
 })
 
-// Simple MongoDB connection (no serverless cache)
-async function connectDB() {
-  const uri = process.env.MONGODB_URI
-  if (!uri) {
-    console.warn('MongoDB URI not provided, running without database')
-    return
-  }
-  // Avoid duplicate connects in the same process
-  if (mongoose.connection.readyState === 1) return
-  try {
-    await mongoose.connect(uri)
-    console.log('MongoDB connected successfully')
-  } catch (err) {
-    console.error('MongoDB connection error:', err?.message || err)
-    throw err
-  }
-}
-
+// Simple one-time connect (on cold start)
 connectDB().catch((e) => console.error('MongoDB connection error:', e))
 
 // Only start a listener locally. On Vercel, the builder invokes the exported app as a handler.
