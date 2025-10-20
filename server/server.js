@@ -21,6 +21,20 @@ app.use('/api/auth', authRoutes)
 app.use('/api/projects', projectRoutes)
 app.use('/api/users', userRoutes)
 
+// Health + diagnostics
+app.get('/api/health', (req, res) => {
+  res.json({
+    ok: true,
+    env: {
+      vercel: !!process.env.VERCEL,
+      nodeEnv: process.env.NODE_ENV || 'development',
+      hasMongoURI: !!process.env.MONGODB_URI,
+      hasJwt: !!process.env.JWT_SECRET,
+    },
+    mongoState: mongoose.connection.readyState,
+  })
+})
+
 app.get('/', (req, res) => {
   res.json({ message: 'CipherStudio API Server' })
 })
@@ -34,8 +48,13 @@ async function connectDB() {
   }
   // Avoid duplicate connects in the same process
   if (mongoose.connection.readyState === 1) return
-  await mongoose.connect(uri)
-  console.log('MongoDB connected successfully')
+  try {
+    await mongoose.connect(uri)
+    console.log('MongoDB connected successfully')
+  } catch (err) {
+    console.error('MongoDB connection error:', err?.message || err)
+    throw err
+  }
 }
 
 connectDB().catch((e) => console.error('MongoDB connection error:', e))

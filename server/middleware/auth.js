@@ -10,7 +10,13 @@ export const authenticateToken = async (req, res, next) => {
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET)
+    const secret = process.env.JWT_SECRET
+    if (!secret) {
+      console.error('JWT_SECRET is not configured')
+      return res.status(500).json({ error: 'Server misconfiguration' })
+    }
+
+    const decoded = jwt.verify(token, secret)
     const user = await User.findById(decoded.userId).select('-password')
     
     if (!user) {
@@ -25,5 +31,9 @@ export const authenticateToken = async (req, res, next) => {
 }
 
 export const generateToken = (userId) => {
-  return jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: '7d' })
+  const secret = process.env.JWT_SECRET
+  if (!secret) {
+    throw new Error('JWT_SECRET is not configured')
+  }
+  return jwt.sign({ userId }, secret, { expiresIn: '7d' })
 }
