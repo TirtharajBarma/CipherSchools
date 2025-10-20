@@ -25,22 +25,26 @@ app.get('/', (req, res) => {
   res.json({ message: 'CipherStudio API Server' })
 })
 
-// MongoDB connection
-const connectDB = async () => {
-  try {
-    if (process.env.MONGODB_URI) {
-      await mongoose.connect(process.env.MONGODB_URI)
-      console.log('MongoDB connected successfully')
-    } else {
-      console.log('MongoDB URI not provided, running without database')
-    }
-  } catch (error) {
-    console.error('MongoDB connection error:', error)
+// Simple MongoDB connection (no serverless cache)
+async function connectDB() {
+  const uri = process.env.MONGODB_URI
+  if (!uri) {
+    console.warn('MongoDB URI not provided, running without database')
+    return
   }
+  // Avoid duplicate connects in the same process
+  if (mongoose.connection.readyState === 1) return
+  await mongoose.connect(uri)
+  console.log('MongoDB connected successfully')
 }
 
-connectDB()
+connectDB().catch((e) => console.error('MongoDB connection error:', e))
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`)
-})
+// Only start a listener locally. On Vercel, the builder invokes the exported app as a handler.
+if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`)
+  })
+}
+
+export default app
