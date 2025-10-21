@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { SandpackProvider, SandpackPreview, SandpackLayout, SandpackConsole } from '@codesandbox/sandpack-react'
 import { useSelector } from 'react-redux'
 import { FiEye, FiRefreshCw } from 'react-icons/fi'
@@ -9,6 +9,26 @@ const Preview = () => {
   const { files } = useSelector((state) => state.project)
   const { isDark } = useSelector((state) => state.theme)
   const [refreshToken, setRefreshToken] = useState(0)
+  const [dependencies, setDependencies] = useState({
+    react: '18.2.0',
+    'react-dom': '18.2.0',
+  })
+
+  // Listen for npm install events from terminal
+  useEffect(() => {
+    const handleNpmInstall = (event) => {
+      const { name, version } = event.detail
+      setDependencies(prev => ({
+        ...prev,
+        [name]: version
+      }))
+      // Force refresh to apply new dependencies
+      setRefreshToken(t => t + 1)
+    }
+
+    window.addEventListener('npm-install', handleNpmInstall)
+    return () => window.removeEventListener('npm-install', handleNpmInstall)
+  }, [])
 
   // Map Redux files to Sandpack file shape. Ensure required entry files exist.
   const sandpackFiles = useMemo(() => {
@@ -86,10 +106,7 @@ body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Aria
           files={sandpackFiles}
           customSetup={{
             entry: '/src/main.jsx',
-            dependencies: {
-              react: '18.2.0',
-              'react-dom': '18.2.0',
-            },
+            dependencies,
           }}
           options={{
             recompileMode: 'delayed',

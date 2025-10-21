@@ -1,14 +1,17 @@
+import { useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import { FiSun, FiMoon, FiSave, FiUser, FiLogOut, FiLogIn, FiMenu, FiGrid, FiTrash } from 'react-icons/fi'
+import { FiSun, FiMoon, FiSave, FiUser, FiLogOut, FiLogIn, FiMenu, FiGrid, FiTrash, FiZap } from 'react-icons/fi'
 import { toggleTheme } from '../store/slices/themeSlice'
 import { saveProject, toggleAutoSave, clearAllLocalProjects, saveProjectToServer } from '../store/slices/projectSlice'
 import { logoutUser, showAuthModal } from '../store/slices/authSlice'
+import AISettings from './AISettings'
 
 const Header = ({ onToggleSidebar }) => {
   const dispatch = useDispatch()
   const { isDark } = useSelector(state => state.theme)
   const { projectName, autoSave, projectId } = useSelector(state => state.project)
   const { isAuthenticated, user } = useSelector(state => state.auth)
+  const [showAISettings, setShowAISettings] = useState(false)
 
   return (
     <header className="h-12 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between px-4 flex-shrink-0">
@@ -63,6 +66,14 @@ const Header = ({ onToggleSidebar }) => {
         </button>
         
         <button
+          onClick={() => setShowAISettings(true)}
+          className="p-2 text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400"
+          title="AI Assistant Settings"
+        >
+          <FiZap size={18} />
+        </button>
+
+        <button
           onClick={() => dispatch(toggleTheme())}
           className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
           title="Toggle Theme"
@@ -94,6 +105,9 @@ const Header = ({ onToggleSidebar }) => {
           </button>
         )}
       </div>
+
+      {/* AI Settings Modal */}
+      {showAISettings && <AISettings onClose={() => setShowAISettings(false)} />}
     </header>
   )
 }

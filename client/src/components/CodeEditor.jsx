@@ -13,6 +13,19 @@ const CodeEditor = () => {
     }
   }
 
+  const handleEditorDidMount = (editor, monaco) => {
+    // Listen for text selection changes
+    editor.onDidChangeCursorSelection((e) => {
+      const selection = editor.getModel()?.getValueInRange(e.selection)
+      if (selection && selection.trim()) {
+        // Dispatch custom event with selected text
+        window.dispatchEvent(new CustomEvent('monaco-selection', {
+          detail: { selectedText: selection }
+        }))
+      }
+    })
+  }
+
   const getLanguage = (fileName) => {
     if (fileName.endsWith('.js') || fileName.endsWith('.jsx')) return 'javascript'
     if (fileName.endsWith('.ts') || fileName.endsWith('.tsx')) return 'typescript'
@@ -44,6 +57,7 @@ const CodeEditor = () => {
           language={getLanguage(activeFile)}
           value={files[activeFile].code}
           onChange={handleCodeChange}
+          onMount={handleEditorDidMount}
           theme={isDark ? 'vs-dark' : 'vs-light'}
           options={{
             minimap: { enabled: false },

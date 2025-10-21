@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { FiX, FiUser, FiMail, FiLock } from 'react-icons/fi'
-import { login, hideAuthModal, setAuthMode } from '../store/slices/authSlice'
+import { loginUser, registerUser, hideAuthModal, setAuthMode } from '../store/slices/authSlice'
 
 const AuthModal = () => {
     const dispatch = useDispatch()
@@ -36,24 +36,19 @@ const AuthModal = () => {
                     return
                 }
 
-                // For demo purposes, just create a user object
-                const user = {
-                    id: Date.now(),
+                await dispatch(registerUser({
                     username: formData.username,
-                    email: formData.email
-                }
-                dispatch(login(user))
+                    email: formData.email,
+                    password: formData.password
+                })).unwrap()
             } else {
-                // For demo purposes, just create a user object
-                const user = {
-                    id: Date.now(),
-                    username: formData.username || 'demo_user',
-                    email: formData.email || 'demo@example.com'
-                }
-                dispatch(login(user))
+                await dispatch(loginUser({
+                    email: formData.email,
+                    password: formData.password
+                })).unwrap()
             }
         } catch (err) {
-            setError('Authentication failed. Please try again.')
+            setError(err || 'Authentication failed. Please try again.')
         } finally {
             setLoading(false)
         }

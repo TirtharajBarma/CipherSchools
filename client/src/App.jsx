@@ -6,6 +6,8 @@ import Header from './components/Header'
 import LoginPage from './components/LoginPage'
 import SignupPage from './components/SignupPage'
 import DebugInfo from './components/DebugInfo'
+import AIAssistant from './components/AIAssistant'
+import Terminal from './components/Terminal'
 import ProjectDashboard from './components/ProjectDashboard'
 import { getCurrentUser } from './store/slices/authSlice'
 import { initializeProject } from './store/slices/projectSlice'
@@ -127,7 +129,9 @@ function App() {
         )}
       </div>
       
-      <DebugInfo />
+      {/* <DebugInfo /> */}
+      <AIAssistant />
+      <Terminal />
     </div>
   )
 }
