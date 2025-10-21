@@ -6,7 +6,7 @@ html, body, #root {
   height: 100%;
   margin: 0;
   padding: 0;
-  overflow: hidden;
+  overflow: auto;
 }
 
 body {
@@ -69,6 +69,19 @@ code {
 
 .animation-delay-4000 {
   animation-delay: 4s;
+}
+
+/* Reusable neutral button styles */
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center px-4 py-2 rounded-lg bg-gray-900 text-white hover:bg-black disabled:bg-gray-500 disabled:cursor-not-allowed transition-colors;
+  }
+  .btn-secondary {
+    @apply inline-flex items-center justify-center px-4 py-2 rounded-lg bg-gray-700 text-white hover:bg-gray-800 disabled:bg-gray-500 disabled:cursor-not-allowed transition-colors;
+  }
+  .btn-ghost {
+    @apply inline-flex items-center justify-center px-3 py-2 rounded-lg bg-transparent text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors;
+  }
 }
 
 /* IDE Layout fixes */

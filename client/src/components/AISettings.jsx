@@ -12,11 +12,11 @@ const AISettings = ({ onClose }) => {
   const [testResult, setTestResult] = useState('')
 
   const models = [
-    { id: 'deepseek/deepseek-chat-v3.1:free', name: 'DeepSeek V3.1 (Free)', description: 'Large hybrid reasoning model - 671B params', free: true },
+    { id: 'google/gemini-2.5-flash', name: 'Gemini 2.5 flash', description: 'Large hybrid reasoning model - 671B params', free: true },
     { id: 'openai/gpt-oss-20b:free', name: 'GPT-OSS-20B (Free)', description: 'Open-weight 21B parameter MoE model', free: true },
     { id: 'qwen/qwen3-coder:free', name: 'Qwen3 Coder 480B A35B (Free)', description: 'Optimized for coding tasks - 480B params', free: true },
     { id: 'google/gemma-3n-e2b-it:free', name: 'Gemma 3n 2B (Free)', description: 'Lightweight efficient model - 2B params', free: true },
-    { id: 'meta-llama/llama-3.3-8b-instruct:free', name: 'Llama 3.3 8B (Free)', description: 'Ultra-fast open source model', free: true },
+    { id: 'openai/gpt-4o-mini', name: 'GPT 4o mini', description: 'Open AI GPT 4o', free: true },
   ]
 
     const handleSave = () => {
@@ -32,6 +32,9 @@ const AISettings = ({ onClose }) => {
     setTestResult('')
     
     setTimeout(() => setSaved(false), 3000)
+      // Notify other components (like AIAssistant) that settings changed
+      window.dispatchEvent(new Event('ai-settings-updated'))
+      onClose?.()
   }
 
   const handleTest = async () => {
@@ -77,8 +80,14 @@ const AISettings = ({ onClose }) => {
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+    <div
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center space-x-3">
@@ -224,10 +233,10 @@ const AISettings = ({ onClose }) => {
 
         {/* Footer */}
         <div className="flex items-center justify-between p-6 border-t border-gray-200 dark:border-gray-700">
-          <button
-            onClick={handleTest}
-            disabled={!apiKey.trim() || testing}
-            className="px-4 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+            <button
+              onClick={handleTest}
+              disabled={!apiKey.trim() || testing}
+              className="btn-secondary disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
           >
             {testing ? (
               <>
@@ -242,14 +251,14 @@ const AISettings = ({ onClose }) => {
           <div className="flex items-center space-x-3">
             <button
               onClick={onClose}
-              className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+              className="btn-ghost"
             >
               Cancel
             </button>
             <button
               onClick={handleSave}
               disabled={!apiKey.trim()}
-              className="px-6 py-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 disabled:from-gray-400 disabled:to-gray-500 text-white rounded-lg transition-all transform hover:scale-105 disabled:scale-100 disabled:cursor-not-allowed"
+              className="btn px-6 disabled:cursor-not-allowed"
             >
               Save Settings
             </button>

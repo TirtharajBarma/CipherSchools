@@ -52,13 +52,7 @@ const LoginPage = ({ onSwitchToSignup }) => {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-purple-900 flex items-center justify-center p-4">
-            {/* Background Pattern */}
-            <div className="absolute inset-0 overflow-hidden">
-                <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-300 dark:bg-purple-600 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-                <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-300 dark:bg-blue-600 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-                <div className="absolute top-40 left-40 w-80 h-80 bg-pink-300 dark:bg-pink-600 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
-            </div>
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-4">
 
             <div className="relative w-full max-w-md">
                 {/* Logo Section */}
@@ -75,7 +69,7 @@ const LoginPage = ({ onSwitchToSignup }) => {
                 </div>
 
                 {/* Login Form */}
-                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 backdrop-blur-sm bg-opacity-80 dark:bg-opacity-80">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
                     <form onSubmit={handleSubmit} className="space-y-6">
                         {/* Email Field */}
                         <div>
@@ -150,7 +144,7 @@ const LoginPage = ({ onSwitchToSignup }) => {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:from-gray-400 disabled:to-gray-500 text-white font-medium py-3 px-4 rounded-xl transition-all duration-200 transform hover:scale-[1.02] disabled:scale-100 shadow-lg hover:shadow-xl"
+                            className="btn w-full font-medium py-3"
                         >
                             {loading ? (
                                 <div className="flex items-center justify-center">
@@ -180,7 +174,7 @@ const LoginPage = ({ onSwitchToSignup }) => {
                     {/* Sign Up Link */}
                     <button
                         onClick={onSwitchToSignup}
-                        className="w-full text-center py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200 font-medium"
+                        className="w-full text-center py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-xl text-gray-800 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200 font-medium"
                     >
                         Create your account
                     </button>
@@ -189,20 +183,20 @@ const LoginPage = ({ onSwitchToSignup }) => {
                 {/* Features */}
                 <div className="mt-8 grid grid-cols-3 gap-4 text-center">
                     <div className="flex flex-col items-center">
-                        <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center mb-2">
-                            <FiCode className="text-blue-600 dark:text-blue-400" size={20} />
+                        <div className="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center mb-2">
+                            <FiCode className="text-gray-700 dark:text-gray-200" size={20} />
                         </div>
                         <span className="text-xs text-gray-600 dark:text-gray-400">Live Coding</span>
                     </div>
                     <div className="flex flex-col items-center">
-                        <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center mb-2">
-                            <FiZap className="text-purple-600 dark:text-purple-400" size={20} />
+                        <div className="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center mb-2">
+                            <FiZap className="text-gray-700 dark:text-gray-200" size={20} />
                         </div>
                         <span className="text-xs text-gray-600 dark:text-gray-400">Instant Preview</span>
                     </div>
                     <div className="flex flex-col items-center">
-                        <div className="w-10 h-10 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center mb-2">
-                            <FiSave className="text-green-600 dark:text-green-400" size={20} />
+                        <div className="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center mb-2">
+                            <FiSave className="text-gray-700 dark:text-gray-200" size={20} />
                         </div>
                         <span className="text-xs text-gray-600 dark:text-gray-400">Auto Save</span>
                     </div>

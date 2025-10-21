@@ -5,6 +5,7 @@ import { toggleTheme } from '../store/slices/themeSlice'
 import { saveProject, toggleAutoSave, clearAllLocalProjects, saveProjectToServer } from '../store/slices/projectSlice'
 import { logoutUser, showAuthModal } from '../store/slices/authSlice'
 import AISettings from './AISettings'
+import ConfirmModal from './ConfirmModal'
 
 const Header = ({ onToggleSidebar }) => {
   const dispatch = useDispatch()
@@ -12,6 +13,7 @@ const Header = ({ onToggleSidebar }) => {
   const { projectName, autoSave, projectId } = useSelector(state => state.project)
   const { isAuthenticated, user } = useSelector(state => state.auth)
   const [showAISettings, setShowAISettings] = useState(false)
+  const [showClearConfirm, setShowClearConfirm] = useState(false)
 
   return (
     <header className="h-12 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between px-4 flex-shrink-0">
@@ -56,11 +58,11 @@ const Header = ({ onToggleSidebar }) => {
           <FiGrid size={18} />
         </button>
 
-        {/* Dev helper: clear local storage */}
+        {/* Clear local session */}
         <button
-          onClick={() => { dispatch(clearAllLocalProjects()); window.location.reload() }}
+          onClick={() => setShowClearConfirm(true)}
           className="p-2 text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400"
-          title="Clear Storage (dev)"
+          title="Clear Local Session"
         >
           <FiTrash size={18} />
         </button>
@@ -98,7 +100,7 @@ const Header = ({ onToggleSidebar }) => {
         ) : (
           <button
             onClick={() => dispatch(showAuthModal('login'))}
-            className="flex items-center space-x-1 px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm"
+            className="flex items-center space-x-1 px-3 py-1 bg-gray-900 hover:bg-black text-white rounded text-sm"
           >
             <FiLogIn size={14} />
             <span>Sign In</span>
@@ -108,6 +110,23 @@ const Header = ({ onToggleSidebar }) => {
 
       {/* AI Settings Modal */}
       {showAISettings && <AISettings onClose={() => setShowAISettings(false)} />}
+
+      {/* Confirm clear local session */}
+      {showClearConfirm && (
+        <ConfirmModal
+          title="Clear local session?"
+          message="This will remove ALL locally saved projects and files for this app. This action cannot be undone."
+          confirmText="Clear Local Session"
+          cancelText="Cancel"
+          danger
+          onCancel={() => setShowClearConfirm(false)}
+          onConfirm={() => {
+            setShowClearConfirm(false)
+            dispatch(clearAllLocalProjects())
+            window.location.reload()
+          }}
+        />
+      )}
     </header>
   )
 }

@@ -155,7 +155,7 @@ const AuthModal = () => {
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white py-2 px-4 rounded-md transition-colors"
+                        className="btn w-full"
                     >
                         {loading ? 'Please wait...' : (authMode === 'login' ? 'Sign In' : 'Sign Up')}
                     </button>
@@ -164,7 +164,7 @@ const AuthModal = () => {
                 <div className="mt-4 text-center">
                     <button
                         onClick={() => dispatch(setAuthMode(authMode === 'login' ? 'register' : 'login'))}
-                        className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 text-sm"
+                        className="btn-ghost text-sm"
                     >
                         {authMode === 'login'
                             ? "Don't have an account? Sign up"

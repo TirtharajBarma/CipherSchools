@@ -404,3 +404,15 @@ export const deleteProjectOnServerAndLocal = (id) => async (dispatch) => {
     dispatch(projectSlice.actions.deleteProjectById(id))
   }
 }
+
+// Thunk: rename project on server and then reflect locally
+export const renameProjectOnServerAndLocal = ({ id, name }) => async (dispatch) => {
+  try {
+    if (id && name) await projectService.updateProject(id, { name })
+  } catch (e) {
+    console.error('Rename project API failed:', e)
+    // proceed to update local even if server fails, to keep UX responsive
+  } finally {
+    dispatch(projectSlice.actions.renameProjectById({ id, name }))
+  }
+}

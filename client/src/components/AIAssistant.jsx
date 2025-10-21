@@ -14,6 +14,7 @@ const AIAssistant = () => {
   const [error, setError] = useState('')
   const [mode, setMode] = useState('suggest') // suggest, explain, fix, generate
   const [selectedText, setSelectedText] = useState('')
+  const [hasKey, setHasKey] = useState(aiService.hasApiKey())
 
   // Listen for text selection from Monaco Editor
   useEffect(() => {
@@ -25,6 +26,22 @@ const AIAssistant = () => {
 
     window.addEventListener('monaco-selection', handleSelection)
     return () => window.removeEventListener('monaco-selection', handleSelection)
+  }, [])
+
+  // React to API key changes (storage or explicit settings save event)
+  useEffect(() => {
+    const onStorage = (e) => {
+      if (e.key === 'openrouter_api_key') {
+        setHasKey(!!e.newValue)
+      }
+    }
+    const onUpdated = () => setHasKey(aiService.hasApiKey())
+    window.addEventListener('storage', onStorage)
+    window.addEventListener('ai-settings-updated', onUpdated)
+    return () => {
+      window.removeEventListener('storage', onStorage)
+      window.removeEventListener('ai-settings-updated', onUpdated)
+    }
   }, [])
 
   const modes = [
@@ -182,7 +199,7 @@ const AIAssistant = () => {
     }
   }
 
-  if (!aiService.hasApiKey()) {
+  if (!hasKey) {
     return null
   }
 
@@ -191,7 +208,7 @@ const AIAssistant = () => {
       {/* Floating Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-6 right-6 w-14 h-14 bg-gradient-to-br from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-110 flex items-center justify-center z-40"
+        className="fixed bottom-6 right-6 w-14 h-14 bg-gray-900 hover:bg-black text-white rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-110 flex items-center justify-center z-40"
         title="AI Assistant"
       >
         <FiZap size={24} />
@@ -325,7 +342,7 @@ const AIAssistant = () => {
                 <button
                   onClick={handleAction}
                   disabled={!activeFile && mode !== 'generate'}
-                  className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 disabled:from-gray-400 disabled:to-gray-500 text-white py-2 px-4 rounded-lg transition-all disabled:cursor-not-allowed"
+                  className="btn w-full disabled:cursor-not-allowed"
                 >
                   {mode === 'suggest' && 'Get Suggestion'}
                   {mode === 'explain' && 'Explain Code'}

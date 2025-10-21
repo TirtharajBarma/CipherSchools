@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { createNewProjectWithName, selectProjectById, deleteProjectById, renameProjectById, createProjectAndPersist, deleteProjectOnServerAndLocal } from '../store/slices/projectSlice'
+import { createNewProjectWithName, selectProjectById, deleteProjectById, renameProjectById, createProjectAndPersist, deleteProjectOnServerAndLocal, renameProjectOnServerAndLocal } from '../store/slices/projectSlice'
 import { FiFolderPlus, FiTrash2, FiPlay, FiEdit3, FiCheck, FiX } from 'react-icons/fi'
 
 const ProjectDashboard = () => {
@@ -29,7 +29,7 @@ const ProjectDashboard = () => {
             />
             <button
               onClick={() => name.trim() && dispatch(createProjectAndPersist({ name: name.trim() }))}
-              className="inline-flex items-center gap-1 px-3 py-2 rounded bg-blue-600 hover:bg-blue-700 text-white"
+              className="btn inline-flex items-center gap-1"
             >
               <FiFolderPlus /> Create
             </button>
@@ -50,7 +50,7 @@ const ProjectDashboard = () => {
                         onKeyDown={(e) => {
                           if (e.key === 'Enter') {
                             const v = renameValue.trim()
-                            if (v) dispatch(renameProjectById({ id: p.id, name: v }))
+                            if (v) dispatch(renameProjectOnServerAndLocal({ id: p.id, name: v }))
                             setRenamingId(null)
                           }
                           if (e.key === 'Escape') setRenamingId(null)
@@ -66,16 +66,16 @@ const ProjectDashboard = () => {
                     {renamingId === p.id ? (
                       <>
                         <button
-                          onClick={() => { const v = renameValue.trim(); if (v) dispatch(renameProjectById({ id: p.id, name: v })); setRenamingId(null) }}
+                          onClick={() => { const v = renameValue.trim(); if (v) dispatch(renameProjectOnServerAndLocal({ id: p.id, name: v })); setRenamingId(null) }}
                           className="px-2 py-1 text-xs bg-green-600 hover:bg-green-700 text-white rounded inline-flex items-center gap-1"
                         ><FiCheck /> Save</button>
                         <button onClick={() => setRenamingId(null)} className="px-2 py-1 text-xs bg-gray-600 hover:bg-gray-700 text-white rounded inline-flex items-center gap-1"><FiX /> Cancel</button>
                       </>
                     ) : (
                       <>
-                        <button onClick={() => dispatch(selectProjectById(p.id))} className="px-2 py-1 text-xs bg-green-600 hover:bg-green-700 text-white rounded inline-flex items-center gap-1"><FiPlay /> Open</button>
-                        <button onClick={() => { setRenamingId(p.id); setRenameValue(p.name) }} className="px-2 py-1 text-xs bg-blue-600 hover:bg-blue-700 text-white rounded inline-flex items-center gap-1"><FiEdit3 /> Rename</button>
-                        <button onClick={() => dispatch(deleteProjectOnServerAndLocal(p.id))} className="px-2 py-1 text-xs bg-red-600 hover:bg-red-700 text-white rounded inline-flex items-center gap-1"><FiTrash2 /> Delete</button>
+                        <button onClick={() => dispatch(selectProjectById(p.id))} className="btn text-xs px-2 py-1 inline-flex items-center gap-1"><FiPlay /> Open</button>
+                        <button onClick={() => { setRenamingId(p.id); setRenameValue(p.name) }} className="btn text-xs px-2 py-1 inline-flex items-center gap-1"><FiEdit3 /> Rename</button>
+                        <button onClick={() => dispatch(deleteProjectOnServerAndLocal(p.id))} className="btn text-xs px-2 py-1 inline-flex items-center gap-1"><FiTrash2 /> Delete</button>
                       </>
                     )}
                   </div>

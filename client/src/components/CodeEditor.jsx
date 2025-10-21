@@ -1,15 +1,24 @@
 import { useSelector, useDispatch } from 'react-redux'
-import { updateFileCode } from '../store/slices/projectSlice'
+import { updateFileCode, saveProjectToServer } from '../store/slices/projectSlice'
+import { useRef } from 'react'
 import Editor from '@monaco-editor/react'
 
 const CodeEditor = () => {
   const dispatch = useDispatch()
-  const { files, activeFile } = useSelector(state => state.project)
+  const { files, activeFile, autoSave } = useSelector(state => state.project)
   const { isDark } = useSelector(state => state.theme)
+  const serverSaveTimer = useRef(null)
 
   const handleCodeChange = (value) => {
     if (activeFile && value !== undefined) {
       dispatch(updateFileCode({ fileName: activeFile, code: value }))
+      // Debounced server save when auto-save is ON
+      if (autoSave) {
+        if (serverSaveTimer.current) clearTimeout(serverSaveTimer.current)
+        serverSaveTimer.current = setTimeout(() => {
+          dispatch(saveProjectToServer())
+        }, 1000)
+      }
     }
   }
 
