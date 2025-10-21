@@ -39,6 +39,23 @@ app.get('/api/health', async (req, res) => {
   })
 })
 
+// Force a DB command to surface specific errors (auth/network)
+app.get('/api/db-ping', async (req, res) => {
+  try {
+    await connectDB()
+    const result = await mongoose.connection.db.admin().command({ ping: 1 })
+    res.json({ ok: true, result })
+  } catch (e) {
+    res.status(500).json({
+      ok: false,
+      name: e?.name,
+      message: e?.message,
+      code: e?.code,
+      error: String(e),
+    })
+  }
+})
+
 app.get('/', (req, res) => {
   res.json({ message: 'CipherStudio API Server' })
 })

@@ -26,7 +26,8 @@ const connectDB = async () => {
     // Add a reasonable timeout to surface errors in logs quickly.
     await mongoose.connect(uri, { serverSelectionTimeoutMS: 10000 })
   } catch (error) {
-    console.error('MongoDB connection failed:', error)
+    lastMongoError = error
+    console.error('MongoDB connection failed:', error?.message || error)
     throw error
   }
 }
