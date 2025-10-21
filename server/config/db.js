@@ -24,7 +24,11 @@ const connectDB = async () => {
 
     // Keep defaults (bufferCommands=true) so queries wait while connecting.
     // Add a reasonable timeout to surface errors in logs quickly.
-    await mongoose.connect(uri, { serverSelectionTimeoutMS: 10000 })
+    // If a db name is provided via env, use it even if URI has no path.
+    const dbName = process.env.MONGODB_DB_NAME
+    const options = { serverSelectionTimeoutMS: 30000 }
+    if (dbName) options.dbName = dbName
+    await mongoose.connect(uri, options)
   } catch (error) {
     lastMongoError = error
     console.error('MongoDB connection failed:', error?.message || error)
@@ -35,6 +39,7 @@ const connectDB = async () => {
 export const getMongoStatus = () => ({
   readyState: mongoose.connection.readyState,
   lastError: lastMongoError ? String(lastMongoError?.message || lastMongoError) : null,
+  dbName: mongoose.connection?.client?.options?.dbName || process.env.MONGODB_DB_NAME || null,
 })
 
 export default connectDB

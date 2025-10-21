@@ -43,6 +43,13 @@ app.get('/api/health', async (req, res) => {
 app.get('/api/db-ping', async (req, res) => {
   try {
     await connectDB()
+    if (mongoose.connection.readyState !== 1 || !mongoose.connection.db) {
+      return res.status(503).json({
+        ok: false,
+        message: 'Not connected to MongoDB yet',
+        mongoDetail: getMongoStatus(),
+      })
+    }
     const result = await mongoose.connection.db.admin().command({ ping: 1 })
     res.json({ ok: true, result })
   } catch (e) {
