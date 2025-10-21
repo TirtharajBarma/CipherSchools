@@ -1,5 +1,7 @@
 import mongoose from 'mongoose'
 
+let lastMongoError = null
+
 const connectDB = async () => {
   try {
     const uri = process.env.MONGODB_URI
@@ -13,13 +15,25 @@ const connectDB = async () => {
 
     mongoose.connection.once('connected', () => {
       console.log('MongoDB connected')
+      lastMongoError = null
+    })
+    mongoose.connection.on('error', (err) => {
+      lastMongoError = err
+      console.error('MongoDB connection error event:', err?.message || err)
     })
 
-    await mongoose.connect(uri, { bufferCommands: false })
+    // Keep defaults (bufferCommands=true) so queries wait while connecting.
+    // Add a reasonable timeout to surface errors in logs quickly.
+    await mongoose.connect(uri, { serverSelectionTimeoutMS: 10000 })
   } catch (error) {
     console.error('MongoDB connection failed:', error)
     throw error
   }
 }
+
+export const getMongoStatus = () => ({
+  readyState: mongoose.connection.readyState,
+  lastError: lastMongoError ? String(lastMongoError?.message || lastMongoError) : null,
+})
 
 export default connectDB

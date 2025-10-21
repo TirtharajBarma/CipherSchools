@@ -2,7 +2,7 @@ import express from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
 import mongoose from 'mongoose'
-import connectDB from './config/db.js'
+import connectDB, { getMongoStatus } from './config/db.js'
 import projectRoutes from './routes/projects.js'
 import userRoutes from './routes/users.js'
 import authRoutes from './routes/auth.js'
@@ -35,6 +35,7 @@ app.get('/api/health', async (req, res) => {
       hasJwt: !!process.env.JWT_SECRET,
     },
     mongoState: mongoose.connection.readyState,
+    mongoDetail: getMongoStatus(),
   })
 })
 
